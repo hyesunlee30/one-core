@@ -2,14 +2,14 @@
 # 📑 One-Core HR Project
 
 **One-Core HR**은 Oracle Database를 기반으로 한 **급여 및 근태 관리 중심의 인사 관리(HR) 시스템**입니다.
-Kotlin과 Spring Boot 3.3을 활용하여 견고한 Backend API를 구축하고, Docker Compose를 통해 인프라 설정 없이 즉시 실행 가능한 환경을 제공합니다.
+Kotlin과 Spring Boot를 활용하여 멀티 모듈 기반의 견고한 Backend API를 구축하고, Docker Compose를 통해 인프라 설정 없이 즉시 실행 가능한 환경을 제공합니다.
 
 ## 📌 Project Goals
 
-* **Kotlin-Native REST API**: 코틀린의 간결함과 안전성을 활용한 API 개발.
-* **Database Integration**: Oracle DB XE 환경에서의 데이터 모델링 및 JPA 연동.
-* **Containerization**: Docker 기반의 "One-Click" 실행 환경 구축.
-* **Scalability**: 향후 회계(Finance), 구매(Procurement) 등으로 확장 가능한 모듈형 아키텍처 지향.
+* **Multi-Module Architecture**: Domain과 Interface 레이어를 분리하여 모듈 간 독립성 확보.
+* **Database Routing**: `@Transactional(readOnly = true)` 여부에 따른 Leader/Follower DB 동적 분기.
+* **Infrastructure Automation**: Docker를 이용한 Oracle, Redis, MongoDB의 통합 환경 구축.
+* **Security & Reliability**: Jasypt를 이용한 설정 암호화 및 Kotlin의 Null 안정성 활용.
 
 ---
 
@@ -17,42 +17,42 @@ Kotlin과 Spring Boot 3.3을 활용하여 견고한 Backend API를 구축하고,
 
 ### Framework & Language
 
-* **Language**: Kotlin 1.9.24
-* **Framework**: Spring Boot 3.3.5
-* **Build Tool**: Gradle (Groovy DSL)
-* **JDK**: 17
+* **Language**: Kotlin 1.5.21
+* **Framework**: Spring Boot 2.5.4
+* **Build Tool**: Gradle (Kotlin DSL)
+* **JDK**: 11
 
-### Data & Security
+### Data & Infrastructure
 
-* **Database**: Oracle Database XE 21c (Docker)
-* **Persistence**: Spring Data JPA
-* **Security**: Spring Security (REST API Protection)
-* **API Documentation**: SpringDoc OpenAPI (Swagger UI) 2.6.0
+* **Database**: Oracle Database XE 11g (Docker)
+* **NoSQL**: Redis (Cache), MongoDB
+* **Persistence**: Spring Data JPA & QueryDSL 4.4.0
+* **API Documentation**: Springfox Swagger UI 3.0.0
 
 ---
 
 ## 🧩 Core Features (Scope)
 
-* **인사(HR)**: 사원 기본 정보 관리 및 부서/직급 체계화.
-* **근태(Attendance)**: 실시간 출퇴근 기록 및 월별 근무 시간 집계.
-* **급여(Payroll)**: 근태 데이터를 기반으로 한 기본 급여 계산 로직.
+* **인사(HR) 관리**: 사원 기본 정보 및 조직 체계 관리.
+* **커넥션 모니터링**: Leader 및 Follower DB의 Connection Pool 상태 실시간 조회.
+* **확장성**: 향후 근태(Attendance), 급여(Payroll) 모듈 확장을 고려한 도메인 설계.
 
 ---
 
 ## 🐳 Docker Infrastructure
 
-본 프로젝트는 Docker Compose를 통해 데이터베이스와 애플리케이션을 통합 관리합니다.
+본 프로젝트는 Docker Compose를 통해 인프라를 통합 관리합니다.
 
 ### 1. Database (Oracle XE)
 
-* **Image**: `gvenzl/oracle-xe:21-slim`
-* **Port**: `1521`
+* **Image**: `gvenzl/oracle-xe:11`
+* **Port**: `1521` (SID: `XE`)
 * **User/Pass**: `onecore` / `onecore`
 
-### 2. Application
+### 2. NoSQL & Middleware
 
-* **Java Version**: Eclipse Temurin 17 (JDK)
-* **Port**: `8080`
+* **Redis**: `6.2-alpine` (Port: `6379`)
+* **MongoDB**: `4.4` (Port: `27017`)
 
 ---
 
@@ -65,31 +65,25 @@ Kotlin과 Spring Boot 3.3을 활용하여 견고한 Backend API를 구축하고,
 
 ```
 
-### 2️⃣ 실행 (Run with Docker)
+### 2️⃣ 실행 (Run)
+
+로컬 환경에서는 `local` 프로필을 활성화하여 실행합니다.
 
 ```bash
-docker-compose up --build -d
+java -jar -Dspring.profiles.active=local hr-interface/build/libs/hr-interface-latest.jar
 
 ```
 
 ### 3️⃣ 접속 정보 (Access)
 
 * **Swagger API Docs**: [http://localhost:8080/swagger-ui/index.html](https://www.google.com/search?q=http://localhost:8080/swagger-ui/index.html)
-* **Oracle DB**: `localhost:1521` (SID/Service Name: `FREE`)
+* **Connection Check**: `/hr/api/v1/check/connection-pool`
 
 ---
 
-## ⚙️ Key Configuration (build.gradle 핵심)
+## ⚙️ Key Configuration (핵심 설정)
 
-* **Compiler Options**: Kotlin의 Null 안정성을 위해 `-Xjsr305=strict` 옵션을 적용하였습니다.
-* **All-Open Plugin**: JPA 엔티티의 지연 로딩(Lazy Loading)을 위해 `@Entity` 클래스들을 자동으로 개방(Open) 설정하였습니다.
-* **Security & Validation**: RESTful API의 데이터 검증 및 보안 강화를 위한 스타터 팩이 포함되어 있습니다.
-
----
-
-## 🎬 시연 시나리오 (Checklist)
-
-1. **Container Health Check**: Oracle 컨테이너가 정상 기동된 후 Spring Boot가 기동되는지 확인합니다.
-2. **Schema Auto Generation**: JPA `ddl-auto: update` 설정을 통해 테이블이 자동 생성됩니다.
-3. **API Testing**: Swagger UI를 통해 사원 등록 및 근태 기록 API를 테스트합니다.
+* **Database Routing**: `AbstractRoutingDataSource`와 `LazyConnectionDataSourceProxy`를 이용한 부하 분산.
+* **All-Open & No-Arg**: JPA 엔티티의 프록시 생성 및 기본 생성자 지원을 위해 Kotlin 플러그인 적용.
+* **QueryDSL**: `kapt`를 이용한 QClass 생성 및 타입 안정적인 쿼리 환경 구축.
 
