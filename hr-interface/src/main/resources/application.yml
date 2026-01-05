@@ -1,0 +1,19 @@
+spring:
+  config:
+    activate:
+      on-profile: "local"
+management:
+  metrics:
+    export:
+      statsd:
+        port: 8080
+
+logging:
+  level:
+    org:
+      hibernate:
+        SQL: DEBUG
+        type:
+          descriptor:
+            sql:
+              BasicBinder: TRACE
