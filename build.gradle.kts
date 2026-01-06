@@ -14,6 +14,7 @@ buildscript {
     }
 }
 
+
 plugins {
     id("org.springframework.boot") version "2.5.4" apply false
     id("com.ewerk.gradle.plugins.querydsl") version "1.0.10" apply false
@@ -31,6 +32,7 @@ plugins {
     idea
 }
 
+
 allprojects {
     group = "com.sun.ray"
     version = "latest"
@@ -46,6 +48,7 @@ allprojects {
         useJUnitPlatform()
         maxHeapSize = "1024m"
     }
+
 }
 
 subprojects {

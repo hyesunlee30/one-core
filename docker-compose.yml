@@ -1,7 +1,6 @@
 version: '3.8'
 
 services:
-  # 1. Oracle Database (Java 11/ojdbc8과 호환성이 좋은 XE 버전)
   oracle:
     image: gvenzl/oracle-xe:11
     container_name: oracle-db
@@ -14,16 +13,13 @@ services:
     volumes:
       - oracle_data:/opt/oracle/oradata
 
-  # 2. Redis (공식 이미지 사용으로 변경)
   redis:
     image: redis:6.2-alpine
     container_name: redis-local
     ports:
       - "6379:6379"
-    # 로컬 테스트용이므로 별도의 비밀번호 없이 실행
     command: redis-server --save 60 1 --loglevel warning
 
-  # 3. MongoDB
   mongodb:
     image: mongo:4.4
     container_name: mongodb-local

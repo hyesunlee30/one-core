@@ -33,6 +33,7 @@ dependencies {
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.springframework.boot:spring-boot-starter-webflux")
     implementation("com.google.code.gson:gson")
+    implementation("commons-io:commons-io:2.11.0")
     implementation("io.swagger:swagger-annotations:1.5.20")
     implementation("net.gpedro.integrations.slack:slack-webhook:1.4.0")
     implementation("io.github.resilience4j:resilience4j-spring-boot2:1.7.1")
@@ -41,7 +42,13 @@ dependencies {
     implementation("org.mapstruct:mapstruct:1.5.2.Final")
     // actuator
     implementation("org.springframework.boot:spring-boot-starter-actuator")
+    // aws
+    implementation("software.amazon.awssdk:s3:2.17.100")
+
+    api("net.javacrumbs.shedlock:shedlock-spring:4.42.0")
+    implementation("net.javacrumbs.shedlock:shedlock-provider-redis-spring:4.42.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2")
+
     kapt("com.querydsl:querydsl-apt:4.4.0:jpa")
     kapt("org.springframework.boot:spring-boot-configuration-processor")
     kapt("org.hibernate.javax.persistence:hibernate-jpa-2.1-api:1.0.2.Final")
@@ -83,7 +90,6 @@ idea {
         generatedSourceDirs.add(kaptMain)
     }
 }
-
 
 tasks.getByName<BootJar>("bootJar") {
     enabled = false
